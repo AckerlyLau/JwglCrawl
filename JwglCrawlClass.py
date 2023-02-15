@@ -1,6 +1,7 @@
 import datetime
 import os
 import sys
+from time import sleep
 
 import requests
 from PIL import Image  # 导入PIL库
@@ -46,7 +47,8 @@ class JwglCrawl:
         res = self.session.get(qrcode_html_url)
         html = etree.HTML(res.text)
 
-        self.qrcodeUrl = self.guanwangUrl + html.xpath("//div[@class=\"mains_mb\"]/img/@src")[0]
+        self.qrcodeUrl = self.guanwangUrl + \
+            html.xpath("//div[@class=\"mains_mb\"]/img/@src")[0]
 
         self.sid = search(sid_pattern, res.text).group(1)
         self.appid = token_json["appid"]
@@ -82,7 +84,10 @@ class JwglCrawl:
                         + self.rand_token
 
             if res_data['state'] == 200:
-                self.session.get(index_url)
+                # print(index_url)
+                # sleep(10000)
+                res = self.session.get(index_url)
+                # print(res)
                 print("登录成功")
                 break
             elif res_data['state'] == 101 or res_data['state'] == 102:
@@ -113,7 +118,8 @@ class JwglCrawl:
     def getTerm(self, line_limit=-1, show_list=True):
         self.Term_data = self.parseTerm(self.session.get(self.termUrl).text)
         if show_list == True:
-            self.print2Cmd(self.Term_data, line_limit=line_limit, center_space=15)
+            self.print2Cmd(
+                self.Term_data, line_limit=line_limit, center_space=15)
 
     def getCourseGrade(self, name=""):
         self.getTerm(show_list=False)
@@ -141,7 +147,8 @@ class JwglCrawl:
         self.print2Cmd(item)
         for i in range(len(html.xpath("//table[%d]/tr" % table_num)) - 1):
             # data = []
-            item = html.xpath(("//table[%d]/tr[{}]/td/text()" % table_num).      format(i + 2))
+            item = html.xpath(
+                ("//table[%d]/tr[{}]/td/text()" % table_num).      format(i + 2))
             if name == "":
                 self.print2Cmd(item)
             else:
@@ -159,7 +166,8 @@ class JwglCrawl:
         data = []
         output_format_one = ""
         for i, item_list in enumerate(InfoList):
-            output_format_one = output_format_one + "|{%d:{%d}^%d}|" % (i, len(InfoList), center_space)
+            output_format_one = output_format_one + \
+                "|{%d:{%d}^%d}|" % (i, len(InfoList), center_space)
             if line_limit != -1 and i % line_limit == 0:
                 output_format_one = output_format_one + '\n'
             data.append(item_list.replace("\n", "").replace("\t", ""))
